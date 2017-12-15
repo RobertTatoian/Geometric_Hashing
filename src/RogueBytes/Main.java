@@ -5,8 +5,14 @@ import processing.core.PApplet;
 public class Main extends PApplet implements VisualizationConstants{
 
     private int[][] orionImage = {{2262, 2029},{2648, 1743},{2870, 2119},{2862, 2205},{2844, 2289},{3116, 2715},{3420, 2279}};
-    private int[][] orionModel = {{381, 381},{924, 573},{690, 1047},{600, 1098},{504, 1134},{249, 1683},{891, 1707}};
+    private int[][][] model = {
+            // Orion
+            {{381, 381}, {924, 573}, {690, 1047}, {600, 1098}, {504, 1134}, {249, 1683}, {891, 1707}},
+            // Auriga
+            {{119,181}, {149,231}, {228,255}, {244,201}, {189,145}, {163,144}}
+    };
 
+    private int[][] workingModel;
     private float[][] scaledModel;
     private float[][] scaledShiftedModel;
     private float[][] ssrModel;
@@ -24,6 +30,10 @@ public class Main extends PApplet implements VisualizationConstants{
 
     private float angle = 0;
 
+    int i = 0;
+    int shift = 1;
+    int currentModel = 0;
+
     public void settings() {
         size(WIN_WIDTH, WIN_HEIGHT);
     }
@@ -38,11 +48,11 @@ public class Main extends PApplet implements VisualizationConstants{
     private void setupVisualization() {
         // Processing stuff to visualize our world.
         translate(WORLD_ORIGIN_X, WORLD_ORIGIN_Y);
-        scale(100,-100);
+        scale(75,-75);
         strokeWeight(0.01f);
         line(-WORLD_ORIGIN_X,0,WORLD_ORIGIN_X,0);
         line(0,-WORLD_ORIGIN_Y,0,WORLD_ORIGIN_Y);
-        strokeWeight(0.05f);
+        strokeWeight(0.04f);
     }
 
     /**
@@ -141,43 +151,89 @@ public class Main extends PApplet implements VisualizationConstants{
         return Math.acos(adjacent/hypotenuse);
     }
 
+
+    private void drawModelPoints(float[][] coordinates) {
+
+        int numberOfPoints = coordinates.length;
+
+        for (int j = 0; j < numberOfPoints; j++) {
+            // For the life of me I can't remember how to change the color depending on with iteration
+            // the loop is on and this part is not important in the slightest, so...
+            switch (j){
+                case 0:
+                    stroke(255, 0, 0);
+                    break;
+                case 1:
+                    stroke(0, 255, 0);
+                    break;
+                case 2:
+                    stroke(0, 0, 255);
+                    break;
+                case 3:
+                    stroke(255, 0, 255);
+                    break;
+                case 4:
+                    stroke(255, 255, 0);
+                    break;
+                case 5:
+                    stroke(0, 255, 255);
+                    break;
+                case 6:
+                    stroke(255, 255, 255);
+                    break;
+                default:
+                    stroke(0);
+                    break;
+            }
+            point(coordinates[j][0], coordinates[j][1]);
+        }
+
+        stroke(0, 0, 0);
+    }
+
     public void draw() {
+//        background(100f);
+
         setupVisualization();
 
-        //Calculate the distance between two points and determine the value to scale it to 1.
-        distance = distance(orionModel[0][0], orionModel[1][0], orionModel[0][1], orionModel[1][1]);
-        scale = (float)(1/distance);
+        workingModel = model[1];
 
-        //Scale all the points such that the distance between the two points calculated above is 1.
-        scaledModel = scaleCoordinates(orionModel, scale);
+        if (shift != i) {
+            //Calculate the distance between two points and determine the value to scale it to 1.
+            distance = distance(workingModel[i][0], workingModel[shift][0], workingModel[i][1], workingModel[shift][1]);
+            scale = (float) (1 / distance);
 
-        //Shift all the points such that the current point we are working on is at (0, 0).
-        scaledShiftedModel = shiftCoordinates(scaledModel, -scaledModel[0][0], -scaledModel[0][1]);
+            //Scale all the points such that the distance between the two points calculated above is 1.
+            scaledModel = scaleCoordinates(workingModel, scale);
 
-        // Recalculate the scaled distance
-        distance = distance(scaledShiftedModel[0][0], scaledShiftedModel[2][0],scaledShiftedModel[0][1], scaledShiftedModel[2][1]);
+            //Shift all the points such that the current point we are working on is at (0, 0).
+            scaledShiftedModel = shiftCoordinates(scaledModel, -scaledModel[i][0], -scaledModel[i][1]);
 
-        // Calulate the angle between the second point and the x-axis.
-        angle = (float) calculateAngle(scaledShiftedModel[1][0], (float) distance);
-        ssrModel = rotateCoordinates(scaledShiftedModel, angle);
+            // Recalculate the scaled distance
+            distance = distance(scaledShiftedModel[i][0], scaledShiftedModel[shift][0], scaledShiftedModel[i][1], scaledShiftedModel[shift][1]);
 
-        point(scaledShiftedModel[0][0],scaledShiftedModel[0][1]);
-        point(scaledShiftedModel[1][0],scaledShiftedModel[1][1]);
-        point(scaledShiftedModel[2][0],scaledShiftedModel[2][1]);
-        point(scaledShiftedModel[3][0],scaledShiftedModel[3][1]);
-        point(scaledShiftedModel[4][0],scaledShiftedModel[4][1]);
-        point(scaledShiftedModel[5][0],scaledShiftedModel[5][1]);
-        point(scaledShiftedModel[6][0],scaledShiftedModel[6][1]);
+            // Calulate the angle between the second point and the x-axis.
+            angle = (float) calculateAngle(scaledShiftedModel[shift][0], (float) distance);
 
-        stroke(204, 102, 0);
-        point(ssrModel[0][0], ssrModel[0][1]);
-        point(ssrModel[1][0], ssrModel[1][1]);
-        point(ssrModel[2][0], ssrModel[2][1]);
-        point(ssrModel[3][0], ssrModel[3][1]);
-        point(ssrModel[4][0], ssrModel[4][1]);
-        point(ssrModel[5][0], ssrModel[5][1]);
-        point(ssrModel[6][0], ssrModel[6][1]);
-        stroke(0, 0, 0);
+            // Rotate the model by the calculated angle.
+            ssrModel = rotateCoordinates(scaledShiftedModel, angle);
+
+            //TODO Implement hash table storage
+
+        }
+
+        drawModelPoints(ssrModel);
+
+        if (i == workingModel.length - 1) {
+            i = 0;
+//             currentModel = ((currentModel + 1) % model.length);
+        } else if (shift == workingModel.length - 1){
+            i++;
+        }
+
+        shift = ((shift + 1) % workingModel.length);
+
+        delay(1000);
     }
 
 
