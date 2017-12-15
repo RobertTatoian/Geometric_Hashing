@@ -154,26 +154,12 @@ public class Main extends PApplet implements VisualizationConstants{
         //Shift all the points such that the current point we are working on is at (0, 0).
         scaledShiftedModel = shiftCoordinates(scaledModel, -scaledModel[0][0], -scaledModel[0][1]);
 
-        //Determine the distance on the x and y axes to the second point.
-        p2_xDist = scaledModel[1][0] + -(scaledModel[0][0]);
-        p2_yDist = scaledModel[1][1] + -(scaledModel[0][1]);
-
         // Recalculate the scaled distance
-        distance = distance(scaledShiftedModel[0][0], scaledShiftedModel[1][0],scaledShiftedModel[0][1], scaledShiftedModel[1][1]);
-//        print(scaledShiftedModel[1][0] + " " + scaledShiftedModel[1][1] + " " + distance + "\n");
-
-        // Processing stuff to visualize a triangle.
-        strokeWeight(0.01f);
-        stroke(255,0,0);
-        line(scaledShiftedModel[0][0],scaledShiftedModel[0][1],scaledShiftedModel[1][0],0);
-        line(scaledShiftedModel[1][0],0,scaledShiftedModel[1][0],scaledShiftedModel[1][1]);
-        line(0,0,scaledShiftedModel[1][0],scaledShiftedModel[1][1]);
-        stroke(0f);
-        strokeWeight(0.06f);
+        distance = distance(scaledShiftedModel[0][0], scaledShiftedModel[2][0],scaledShiftedModel[0][1], scaledShiftedModel[2][1]);
 
         // Calulate the angle between the second point and the x-axis.
-
-
+        angle = (float) calculateAngle(scaledShiftedModel[1][0], (float) distance);
+        ssrModel = rotateCoordinates(scaledShiftedModel, angle);
 
         point(scaledShiftedModel[0][0],scaledShiftedModel[0][1]);
         point(scaledShiftedModel[1][0],scaledShiftedModel[1][1]);
@@ -182,8 +168,6 @@ public class Main extends PApplet implements VisualizationConstants{
         point(scaledShiftedModel[4][0],scaledShiftedModel[4][1]);
         point(scaledShiftedModel[5][0],scaledShiftedModel[5][1]);
         point(scaledShiftedModel[6][0],scaledShiftedModel[6][1]);
-
-        ssrModel = rotateCoordinates(scaledShiftedModel, angle);
 
         stroke(204, 102, 0);
         point(ssrModel[0][0], ssrModel[0][1]);
