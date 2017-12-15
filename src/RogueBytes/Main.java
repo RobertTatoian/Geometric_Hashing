@@ -61,6 +61,12 @@ public class Main extends PApplet implements VisualizationConstants{
         return Math.sqrt(sum);
     }
 
+    /**
+     * Scales all the points of a model by a certain factor.
+     * @param coordinates The list of coordinates to scale.
+     * @param scale The amount to scale by.
+     * @return The list of scaled coordinates.
+     */
     private float[][] scaleCoordinates(int[][] coordinates, float scale) {
         float[][] scaledCoordinates = new float[coordinates.length][coordinates[0].length];
 
@@ -91,6 +97,12 @@ public class Main extends PApplet implements VisualizationConstants{
         return shiftedCoordinates;
     }
 
+    /**
+     * Shifts all the points of a model by a provided angle.
+     * @param coordinates The list of coordinates to rotate.
+     * @param angle The angle to rotate by.
+     * @return The list of rotated coordinates.
+     */
     private float[][] rotateCoordinates(float[][] coordinates, float angle) {
         float[][] rotatedCoordinates = new float[coordinates.length][coordinates[0].length];
 
@@ -116,6 +128,17 @@ public class Main extends PApplet implements VisualizationConstants{
         rotatedCoordinates[1] = -(x * sin(angle)) + y * cos(angle);
 
         return rotatedCoordinates;
+    }
+
+    /**
+     * Calculates the angle between the adjacent and hypotenuse.
+     * @param adjacent The length of the adjacent side of the triangle.
+     * @param hypotenuse The length of the hypotenuse of the triangle.
+     * @return The angle in radians.
+     */
+    private double calculateAngle(float adjacent, float hypotenuse){
+
+        return Math.acos(adjacent/hypotenuse);
     }
 
     public void draw() {
@@ -149,19 +172,11 @@ public class Main extends PApplet implements VisualizationConstants{
         strokeWeight(0.06f);
 
         // Calulate the angle between the second point and the x-axis.
-        angle = (float)(scaledShiftedModel[1][0]/distance);
-//        println((float)Math.acos(angle));
-        angle = (float)Math.acos(angle);
 
-//        r_P2 = rotatePoint(scaledShiftedModel[1][0], scaledShiftedModel[1][1], angle);
+
 
         point(scaledShiftedModel[0][0],scaledShiftedModel[0][1]);
         point(scaledShiftedModel[1][0],scaledShiftedModel[1][1]);
-
-//        stroke(204, 102, 0);
-//        point(r_P2[0],r_P2[1]);
-//        stroke(0, 0, 0);
-
         point(scaledShiftedModel[2][0],scaledShiftedModel[2][1]);
         point(scaledShiftedModel[3][0],scaledShiftedModel[3][1]);
         point(scaledShiftedModel[4][0],scaledShiftedModel[4][1]);
