@@ -2,6 +2,10 @@ package RogueBytes;
 
 import processing.core.PApplet;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Main extends PApplet implements VisualizationConstants{
 
     private int[][] orionImage = {{2262, 2029},{2648, 1743},{2870, 2119},{2862, 2205},{2844, 2289},{3116, 2715},{3420, 2279}};
@@ -12,22 +16,23 @@ public class Main extends PApplet implements VisualizationConstants{
             {{119,181}, {149,231}, {228,255}, {244,201}, {189,145}, {163,144}}
     };
 
+    private Point[][] model_Points = {
+            {new Point(381, 381), new Point(924, 573), new Point(690, 1047), new Point(600, 1098),
+                    new Point(504, 1134) ,new Point(249, 1683) ,new Point(891, 1707)},
+
+            {new Point(119,181), new Point(149,231), new Point(228,255), new Point(244,201),
+                    new Point(189,145) ,new Point(163,144)}
+    };
+
+    Map<String, List<int[]>> possibleModels = new HashMap<String, List<int[]>>();
+
     private int[][] workingModel;
     private float[][] scaledModel;
     private float[][] scaledShiftedModel;
     private float[][] ssrModel;
 
     private float scale = 1;
-
-    private float p2_xDist = 0;
-    private float p2_yDist = 0;
     private double distance = 0;
-
-    private float r_x2 = 0;
-    private float r_y2 = 0;
-
-    private float[] r_P2 = {0, 0};
-
     private float angle = 0;
 
     int i = 0;
@@ -191,12 +196,16 @@ public class Main extends PApplet implements VisualizationConstants{
         stroke(0, 0, 0);
     }
 
+    private String generateKey(int currentModel, int firstBasisPoint, int secondBasisPoint) {
+        return "(M" + Integer.toString(currentModel) + ", (" + Integer.toString(firstBasisPoint) + ", " + Integer.toString(secondBasisPoint) + "))";
+    }
+
     public void draw() {
 //        background(100f);
 
         setupVisualization();
 
-        workingModel = model[1];
+        workingModel = model[currentModel];
 
         if (shift != i) {
             //Calculate the distance between two points and determine the value to scale it to 1.
@@ -220,20 +229,22 @@ public class Main extends PApplet implements VisualizationConstants{
 
             //TODO Implement hash table storage
 
+            println(generateKey(currentModel, i, shift));
+
         }
 
         drawModelPoints(ssrModel);
 
         if (i == workingModel.length - 1) {
             i = 0;
-//             currentModel = ((currentModel + 1) % model.length);
+             currentModel = ((currentModel + 1) % model.length);
         } else if (shift == workingModel.length - 1){
             i++;
         }
 
         shift = ((shift + 1) % workingModel.length);
 
-        delay(1000);
+        delay(10);
     }
 
 
