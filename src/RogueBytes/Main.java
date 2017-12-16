@@ -18,7 +18,7 @@ public class Main extends PApplet implements VisualizationConstants{
                     new Point(189,145) ,new Point(163,144)})
     };
 
-    Map<String, List<int[]>> possibleModels = new HashMap<String, List<int[]>>();
+    Map<String, List<Point>> possibleModels = new HashMap<String, List<Point>>();
 
     private Point[] workingModel;
     private Point[] scaledModel;
@@ -29,9 +29,9 @@ public class Main extends PApplet implements VisualizationConstants{
     private double distance = 0;
     private float angle = 0;
 
-    int i = 0;
-    int shift = 1;
-    int currentModel = 0;
+    private int currentPoint = 0;
+    private int shiftedPoint = 1;
+    private int currentModel = 0;
 
     public void settings() {
         size(WIN_WIDTH, WIN_HEIGHT);
@@ -110,43 +110,40 @@ public class Main extends PApplet implements VisualizationConstants{
 
     public void draw() {
         background(100f);
-        String model = Model.generateKey(currentModel, i, shift);
+        String model = Model.generateKey(currentModel, currentPoint, shiftedPoint);
         text(model, 0, 100);
         setupVisualization();
 
         workingModel = m[currentModel].getModelPoints();
 
-        if (shift != i) {
+        if (shiftedPoint != currentPoint) {
             //Calculate the distance between two points and determine the value to scale it to 1.
-            distance = Point.distance(workingModel[i],workingModel[shift]);
+            distance = Point.distance(workingModel[currentPoint],workingModel[shiftedPoint]);
             scale = (float) (1 / distance);
 
             //Scale all the points such that the distance between the two points calculated above is 1.
             scaledModel = Model.scaleCoordinates(workingModel, scale);
 
             //Shift all the points such that the current point we are working on is at (0, 0).
-            scaledShiftedModel = Model.shiftCoordinates(scaledModel, scaledModel[i]);
+            scaledShiftedModel = Model.shiftCoordinates(scaledModel, scaledModel[currentPoint]);
 
             // Recalculate the scaled distance
-            distance = Point.distance(scaledShiftedModel[i],scaledShiftedModel[shift]);
-            println("The distance for model: " + model + " is: " + (float) distance);
-            println("The adjacent side for our model: " + model + " is: " + (float) scaledShiftedModel[shift].getX());
+            distance = Point.distance(scaledShiftedModel[currentPoint],scaledShiftedModel[shiftedPoint]);
 
             // Calulate the angle between the second point and the x-axis.
-            angle = (float) calculateAngle((float) scaledShiftedModel[shift].getX(), (float) distance);
-            println("The angle calculated to rotate our model: " + model + " is: " + angle);
+            angle = (float) calculateAngle((float) scaledShiftedModel[shiftedPoint].getX(), (float) distance);
 
             // If the Y of the point in below the x axis, invert the angle.
-            if (scaledShiftedModel[shift].getY() < 0) {
+            if (scaledShiftedModel[shiftedPoint].getY() < 0) {
                 angle = -angle;
             }
-            
+
             // Rotate the model by the calculated angle.
             ssrModel = Model.rotateCoordinates(scaledShiftedModel, angle);
 
             //TODO Implement hash table storage
 
-//            println(Model.generateKey(currentModel, i, shift));
+//            println(Model.generateKey(currentModel, currentPoint, shiftedPoint));
         }
 
         drawModelPoints(ssrModel);
@@ -155,14 +152,14 @@ public class Main extends PApplet implements VisualizationConstants{
     }
 
     public void mouseClicked() {
-        if (i == workingModel.length - 1) {
-            i = 0;
+        if (currentPoint == workingModel.length - 1) {
+            currentPoint = 0;
             currentModel = ((currentModel + 1) % m[currentModel].getModelPoints().length);
-        } else if (shift == workingModel.length - 1){
-            i++;
+        } else if (shiftedPoint == workingModel.length - 1){
+            currentPoint++;
         }
 
-        shift = ((shift + 1) % workingModel.length);
+        shiftedPoint = ((shiftedPoint + 1) % workingModel.length);
     }
 
 
