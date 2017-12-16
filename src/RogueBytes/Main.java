@@ -152,7 +152,7 @@ public class Main extends PApplet implements VisualizationConstants{
     }
 
     public void mouseClicked() {
-        if (currentPoint == workingModel.length - 1) {
+        if (currentPoint == workingModel.length - 1 && shiftedPoint == workingModel.length - 1) {
             currentPoint = 0;
             currentModel = ((currentModel + 1) % m[currentModel].getModelPoints().length);
         } else if (shiftedPoint == workingModel.length - 1){
