@@ -1,7 +1,7 @@
 package RogueBytes;
 
 public class Model {
-    private int modelID = 0;
+    private int modelID;
     private Point[] modelPoints;
 
     Model(int modelID, Point[] modelPoints) {
@@ -78,6 +78,10 @@ public class Model {
 
     public static String generateKey(int currentModel, int firstBasisPoint, int secondBasisPoint) {
         return "(M" + Integer.toString(currentModel) + ", (" + Integer.toString(firstBasisPoint) + ", " + Integer.toString(secondBasisPoint) + "))";
+    }
+
+    public int getModelLength() {
+        return modelPoints.length;
     }
 
     public Point[] getModelPoints() {

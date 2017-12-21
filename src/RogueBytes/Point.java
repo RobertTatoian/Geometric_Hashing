@@ -1,8 +1,8 @@
 package RogueBytes;
 
 public class Point {
-    private double x = 0;
-    private double y = 0;
+    private double x;
+    private double y;
 
     Point() {
         this.x = 0;
@@ -81,7 +81,6 @@ public class Point {
     @Override
     public String toString() {
         String pointRepresentation = "";
-        pointRepresentation.concat("(" + x + ", " + y + ")");
-        return pointRepresentation;
+        return pointRepresentation.concat("(" + x + ", " + y + ")");
     }
 }

@@ -22,22 +22,14 @@ public class Main extends PApplet implements VisualizationConstants{
                     new Point(189,145) ,new Point(163,144)})
     };
 
-    Map<String, List<String>> possibleModels = new HashMap<>();
-
-    private Point[] workingModel;
-    private Point[] scaledModel;
-    private Point[] scaledShiftedModel;
-    private Point[] ssrModel;
-
-    private float scale = 1;
-    private double distance = 0;
-    private float angle = 0;
+    private GHasher hasher;
 
     public void settings() {
         size(WIN_WIDTH, WIN_HEIGHT);
     }
 
     public void setup() {
+        hasher = new GHasher(m);
         noLoop();
     }
 
@@ -52,17 +44,6 @@ public class Main extends PApplet implements VisualizationConstants{
         line(-WORLD_ORIGIN_X,0,WORLD_ORIGIN_X,0);
         line(0,-WORLD_ORIGIN_Y,0,WORLD_ORIGIN_Y);
         strokeWeight(0.04f);
-    }
-
-    /**
-     * Calculates the angle between the adjacent and hypotenuse.
-     * @param adjacent The length of the adjacent side of the triangle.
-     * @param hypotenuse The length of the hypotenuse of the triangle.
-     * @return The angle in radians.
-     */
-    private double calculateAngle(float adjacent, float hypotenuse){
-
-        return Math.acos(adjacent/hypotenuse);
     }
 
     private void drawModelPoints(Point[] coordinates) {
@@ -104,70 +85,25 @@ public class Main extends PApplet implements VisualizationConstants{
         stroke(0, 0, 0);
     }
 
-    private String generateKey(int currentModel, int firstBasisPoint, int secondBasisPoint) {
-        return "(M" + Integer.toString(currentModel) + ", (" + Integer.toString(firstBasisPoint) + ", " + Integer.toString(secondBasisPoint) + "))";
-    }
-
-    private Point[] calculateForBasisPoints(int currentModel, int point1, int point2) throws Exception {
-        if (point1 == point2)
-            throw new Exception("Points are the same");
-        String key = Model.generateKey(currentModel, point1, point2);
-
-        workingModel = m[currentModel].getModelPoints();
-
-        //Calculate the distance between two points and determine the value to scale it to 1.
-        distance = Point.distance(workingModel[point1], workingModel[point2]);
-        scale = (float) (1 / distance);
-
-        //Scale all the points such that the distance between the two points calculated above is 1.
-        scaledModel = Model.scaleCoordinates(workingModel, scale);
-
-        //Shift all the points such that the current point we are working on is at (0, 0).
-        scaledShiftedModel = Model.shiftCoordinates(scaledModel, scaledModel[point1]);
-
-        // Recalculate the scaled distance
-        distance = Point.distance(scaledShiftedModel[point1], scaledShiftedModel[point2]);
-
-        // Calulate the angle between the second point and the x-axis.
-        angle = (float) calculateAngle((float) scaledShiftedModel[point2].getX(), (float) distance);
-
-        // If the Y of the point in below the x axis, invert the angle.
-        if (scaledShiftedModel[point2].getY() < 0) {
-            angle = -angle;
-        }
-
-        // Rotate the model by the calculated angle.
-        ssrModel = Model.rotateCoordinates(scaledShiftedModel, angle);
-
-        // Encode the positions of the points and the model used to get them.
-        for (int j = 0; j < m[currentModel].getModelPoints().length; j++) {
-            if (point1 != j) {
-                BigDecimal x = new BigDecimal(ssrModel[j].getX());
-                BigDecimal y = new BigDecimal(ssrModel[j].getY());
-                Point temp = new Point(x.setScale(1, RoundingMode.HALF_UP).round(MathContext.UNLIMITED).doubleValue(), y.setScale(1, RoundingMode.HALF_UP).round(MathContext.UNLIMITED).doubleValue());
-
-                List<String> modelUsed = possibleModels.computeIfAbsent(temp.toString(), k -> new ArrayList<String>());
-                modelUsed.add(key);
-            }
-        }
-
-        return ssrModel;
-    }
-
     public void draw() {
         setupVisualization();
-        Point[] returnedModel;
-        for (int j = 0; j < ; j++) {
-
-        }
-        try {
-            returnedModel = calculateForBasisPoints(0, 0, 0);
-            drawModelPoints(returnedModel);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        encodeModels();
     }
 
+    private void encodeModels() {
+        Point[] returnedModel;
+        for (int currentModel = 0; currentModel < hasher.numberOfModels(); currentModel++) {
+            for (int basisPoint1 = 0; basisPoint1 < hasher.currentModelLength(); basisPoint1++) {
+                for (int basisPoint2 = 0; basisPoint2 < hasher.currentModelLength(); basisPoint2++) {
+                    if (basisPoint1 != basisPoint2){
+                        returnedModel = hasher.calculateForBasisPoints(currentModel, basisPoint1, basisPoint2);
+                        drawModelPoints(returnedModel);
+                    }
+                }
+
+            }
+        }
+    }
 //    for (int currentModel = 0; currentModel < m.length; currentModel++) {
 //            for (int currentPoint = 0; currentPoint < m[currentModel].getModelPoints().length; currentPoint++){
 //
