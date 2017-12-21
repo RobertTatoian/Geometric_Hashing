@@ -2,14 +2,6 @@ package RogueBytes;
 
 import processing.core.PApplet;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class Main extends PApplet implements VisualizationConstants{
 
     private int[][] orionImage = {{2262, 2029},{2648, 1743},{2870, 2119},{2862, 2205},{2844, 2289},{3116, 2715},{3420, 2279}};
@@ -104,26 +96,7 @@ public class Main extends PApplet implements VisualizationConstants{
             }
         }
     }
-//    for (int currentModel = 0; currentModel < m.length; currentModel++) {
-//            for (int currentPoint = 0; currentPoint < m[currentModel].getModelPoints().length; currentPoint++){
-//
-//
-//                println(key);
-//                text(key, 0, 100);
-//                setupVisualization();
-//
-//
-//                drawModelPoints(ssrModel);
-//
-//                if (currentPoint == workingModel.length - 1 && shiftedPoint == workingModel.length - 1) {
-//                    currentPoint = 0;
-//                } else if (shiftedPoint == workingModel.length - 1) {
-//                    currentPoint++;
-//                }
-//
-//                shiftedPoint = ((shiftedPoint + 1) % workingModel.length);
-//            }
-//        }
+
     public static void main(String[] args) {
         PApplet.main("RogueBytes.Main");
     }

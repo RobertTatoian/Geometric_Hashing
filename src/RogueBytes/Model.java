@@ -10,21 +10,6 @@ public class Model {
     }
 
     /**
-     * Scales all the points of an initialized model by a certain factor.
-     * @param scale The amount to scale by.
-     */
-    public void scaleCoordinates(float scale) {
-        Point[] scaledCoordinates = new Point[modelPoints.length];
-
-        for (int i = 0; i < modelPoints.length; i++) {
-            scaledCoordinates[i].setX(modelPoints[i].getX() * scale);
-            scaledCoordinates[i].setY(modelPoints[i].getY() * scale);
-        }
-
-        modelPoints = scaledCoordinates;
-    }
-
-    /**
      * Scales all the points of a model by a certain factor.
      * @param coordinates The list of coordinates to scale.
      * @param scale The amount to scale by.
