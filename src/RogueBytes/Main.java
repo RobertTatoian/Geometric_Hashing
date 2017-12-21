@@ -33,8 +33,6 @@ public class Main extends PApplet implements VisualizationConstants{
     private double distance = 0;
     private float angle = 0;
 
-    private int shiftedPoint = 1;
-
     public void settings() {
         size(WIN_WIDTH, WIN_HEIGHT);
     }
@@ -110,7 +108,9 @@ public class Main extends PApplet implements VisualizationConstants{
         return "(M" + Integer.toString(currentModel) + ", (" + Integer.toString(firstBasisPoint) + ", " + Integer.toString(secondBasisPoint) + "))";
     }
 
-    private void calculateForBasisPoints(int currentModel, int point1, int point2) {
+    private Point[] calculateForBasisPoints(int currentModel, int point1, int point2) throws Exception {
+        if (point1 == point2)
+            throw new Exception("Points are the same");
         String key = Model.generateKey(currentModel, point1, point2);
 
         workingModel = m[currentModel].getModelPoints();
@@ -150,74 +150,44 @@ public class Main extends PApplet implements VisualizationConstants{
                 modelUsed.add(key);
             }
         }
+
+        return ssrModel;
     }
 
     public void draw() {
-        for (int currentModel = 0; currentModel < m.length; currentModel++) {
-            for (int currentPoint = 0; currentPoint < m[currentModel].getModelPoints().length; currentPoint++){
+        setupVisualization();
+        Point[] returnedModel;
+        for (int j = 0; j < ; j++) {
 
-
-                println(key);
-                text(key, 0, 100);
-                setupVisualization();
-
-                workingModel = m[currentModel].getModelPoints();
-
-                if (shiftedPoint != currentPoint) {
-                    //Calculate the distance between two points and determine the value to scale it to 1.
-                    distance = Point.distance(workingModel[currentPoint], workingModel[shiftedPoint]);
-                    scale = (float) (1 / distance);
-
-                    //Scale all the points such that the distance between the two points calculated above is 1.
-                    scaledModel = Model.scaleCoordinates(workingModel, scale);
-
-                    //Shift all the points such that the current point we are working on is at (0, 0).
-                    scaledShiftedModel = Model.shiftCoordinates(scaledModel, scaledModel[currentPoint]);
-
-                    // Recalculate the scaled distance
-                    distance = Point.distance(scaledShiftedModel[currentPoint], scaledShiftedModel[shiftedPoint]);
-
-                    // Calulate the angle between the second point and the x-axis.
-                    angle = (float) calculateAngle((float) scaledShiftedModel[shiftedPoint].getX(), (float) distance);
-
-                    // If the Y of the point in below the x axis, invert the angle.
-                    if (scaledShiftedModel[shiftedPoint].getY() < 0) {
-                        angle = -angle;
-                    }
-
-                    // Rotate the model by the calculated angle.
-                    ssrModel = Model.rotateCoordinates(scaledShiftedModel, angle);
-
-
-                    for (int j = 0; j < m[currentModel].getModelPoints().length; j++) {
-                        if (currentPoint != j) {
-                            BigDecimal x = new BigDecimal(ssrModel[j].getX());
-                            BigDecimal y = new BigDecimal(ssrModel[j].getY());
-                            Point temp = new Point(x.setScale(1, RoundingMode.HALF_UP).round(MathContext.UNLIMITED).doubleValue(), y.setScale(1, RoundingMode.HALF_UP).round(MathContext.UNLIMITED).doubleValue());
-
-                            List<String> modelUsed = possibleModels.get(temp.toString());
-                            if (modelUsed == null) {
-                                possibleModels.put(temp.toString(), modelUsed = new ArrayList<String>());
-                            }
-                            modelUsed.add(key);
-                        }
-                    }
-
-                }
-
-                drawModelPoints(ssrModel);
-
-                if (currentPoint == workingModel.length - 1 && shiftedPoint == workingModel.length - 1) {
-                    currentPoint = 0;
-                } else if (shiftedPoint == workingModel.length - 1) {
-                    currentPoint++;
-                }
-
-                shiftedPoint = ((shiftedPoint + 1) % workingModel.length);
-            }
+        }
+        try {
+            returnedModel = calculateForBasisPoints(0, 0, 0);
+            drawModelPoints(returnedModel);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
+//    for (int currentModel = 0; currentModel < m.length; currentModel++) {
+//            for (int currentPoint = 0; currentPoint < m[currentModel].getModelPoints().length; currentPoint++){
+//
+//
+//                println(key);
+//                text(key, 0, 100);
+//                setupVisualization();
+//
+//
+//                drawModelPoints(ssrModel);
+//
+//                if (currentPoint == workingModel.length - 1 && shiftedPoint == workingModel.length - 1) {
+//                    currentPoint = 0;
+//                } else if (shiftedPoint == workingModel.length - 1) {
+//                    currentPoint++;
+//                }
+//
+//                shiftedPoint = ((shiftedPoint + 1) % workingModel.length);
+//            }
+//        }
     public static void main(String[] args) {
         PApplet.main("RogueBytes.Main");
     }
