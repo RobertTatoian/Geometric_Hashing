@@ -57,7 +57,7 @@ public class GHasher {
             if (point1 != j) {
                 BigDecimal x = new BigDecimal(ssrModel[j].getX());
                 BigDecimal y = new BigDecimal(ssrModel[j].getY());
-                Point temp = new Point(x.setScale(1, RoundingMode.HALF_UP).round(MathContext.UNLIMITED).doubleValue(), y.setScale(1, RoundingMode.HALF_UP).round(MathContext.UNLIMITED).doubleValue());
+                Point temp = new Point(x.setScale(2, RoundingMode.HALF_UP).round(MathContext.UNLIMITED).doubleValue(), y.setScale(2, RoundingMode.HALF_UP).round(MathContext.UNLIMITED).doubleValue());
 
                 List<String> modelUsed = possibleModels.computeIfAbsent(temp.toString(), k -> new ArrayList<>());
                 modelUsed.add(key);

@@ -2,11 +2,17 @@ package RogueBytes;
 
 import processing.core.PApplet;
 
+import java.util.*;
+
 public class Main extends PApplet implements VisualizationConstants{
 
-    private int[][] orionImage = {{2262, 2029},{2648, 1743},{2870, 2119},{2862, 2205},{2844, 2289},{3116, 2715},{3420, 2279}};
+    private Model[] images = {
+            new Model(0, new Point[] {
+                    new Point(2262, 2029), new Point(2648, 1743), new Point(2870, 2119), new Point(2862, 2205),
+                    new Point(2844, 2289), new Point(3116, 2715), new Point(3420, 2279)})
+    };
 
-    private Model[] m = {
+    private Model[] models = {
             new Model(0, new Point[] {new Point(381, 381), new Point(924, 573), new Point(690, 1047), new Point(600, 1098),
                     new Point(504, 1134) ,new Point(249, 1683) ,new Point(891, 1707)}),
 
@@ -14,14 +20,24 @@ public class Main extends PApplet implements VisualizationConstants{
                     new Point(189,145) ,new Point(163,144)})
     };
 
-    private GHasher hasher;
+    private Map<String, List<String>> hashedModels = new HashMap<>();
+    private Map<String, List<String>> hashedImage = new HashMap<>();
+
+    private Collection<String> foundPoints = new ArrayList<>();
+    private String[] points;
+    private Map<String, Integer> objectHistogram = new HashMap<>();
+
+
+    private GHasher modelHasher;
+    private GHasher imageHasher;
 
     public void settings() {
         size(WIN_WIDTH, WIN_HEIGHT);
     }
 
     public void setup() {
-        hasher = new GHasher(m);
+        modelHasher = new GHasher(models);
+        imageHasher = new GHasher(images);
         noLoop();
     }
 
@@ -78,23 +94,73 @@ public class Main extends PApplet implements VisualizationConstants{
     }
 
     public void draw() {
+
         setupVisualization();
         encodeModels();
+        encodeImages();
+
+
+
     }
 
     private void encodeModels() {
         Point[] returnedModel;
-        for (int currentModel = 0; currentModel < hasher.numberOfModels(); currentModel++) {
-            for (int basisPoint1 = 0; basisPoint1 < hasher.currentModelLength(); basisPoint1++) {
-                for (int basisPoint2 = 0; basisPoint2 < hasher.currentModelLength(); basisPoint2++) {
+        for (int currentModel = 0; currentModel < modelHasher.numberOfModels(); currentModel++) {
+            for (int basisPoint1 = 0; basisPoint1 < modelHasher.currentModelLength(); basisPoint1++) {
+                for (int basisPoint2 = 0; basisPoint2 < modelHasher.currentModelLength(); basisPoint2++) {
                     if (basisPoint1 != basisPoint2){
-                        returnedModel = hasher.calculateForBasisPoints(currentModel, basisPoint1, basisPoint2);
+                        returnedModel = modelHasher.calculateForBasisPoints(currentModel, basisPoint1, basisPoint2);
                         drawModelPoints(returnedModel);
                     }
                 }
 
             }
         }
+
+        hashedModels = modelHasher.getPossibleModels();
+    }
+
+    private void encodeImages() {
+        Point[] returnedModel;
+        for (int currentModel = 0; currentModel < imageHasher.numberOfModels(); currentModel++) {
+            for (int basisPoint1 = 0; basisPoint1 < imageHasher.currentModelLength(); basisPoint1++) {
+                for (int basisPoint2 = 0; basisPoint2 < imageHasher.currentModelLength(); basisPoint2++) {
+                    if (basisPoint1 != basisPoint2){
+                        returnedModel = imageHasher.calculateForBasisPoints(currentModel, basisPoint1, basisPoint2);
+                        drawModelPoints(returnedModel);
+                    }
+                }
+
+            }
+        }
+
+        hashedImage = imageHasher.getPossibleModels();
+    }
+
+    private void determineMatches() {
+        foundPoints = hashedImage.keySet();
+        points = foundPoints.toArray(new String[0]);
+
+        for (int i = 0; i < points.length; i++) {
+            List<String> temp = hashedModels.get(points[i]);
+            if (temp != null) {
+                String[] tempStrings = temp.toArray(new String[0]);
+                for (int j = 0; j < tempStrings.length; j++) {
+                    Integer integer = objectHistogram.get(tempStrings[j]);
+                    if (integer == null) {
+                        objectHistogram.put(tempStrings[j], 1);
+                    } else {
+                        objectHistogram.put(tempStrings[j], integer + 1);
+                    }
+                }
+            }
+        }
+
+        objectHistogram.entrySet().removeIf(stringIntegerEntry -> stringIntegerEntry.getValue() < 4);
+
+        objectHistogram.forEach((k,v) -> {
+            System.out.println("Possible match in model: " + k);
+        });
     }
 
     public static void main(String[] args) {
